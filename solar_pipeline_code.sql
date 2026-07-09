@@ -1,20 +1,33 @@
-CREATE OR REPLACE TABLE raw_nasa_data.solar_analysis_final AS 
+-----------------------
+--Starting SILVER LAYER
+-----------------------
+
 
 SELECT 
-  -- Creates a Clean Category for charts (turns X8.7 class storm into just "X")
-  LEFT (flares.class_type, 1) AS flare_category,
+  JSON_VALUE(raw_payload.activityID) as cme_id,
+  JSON_VALUE(raw_payload.startTime) as start_time,
+  -- pulls not from specifc scientific model-note root event aka raw_payload
+  JSON_VALUE(analysis.note) as event_note,
 
-  flares.class_type AS flare_specific_class,
-  flares.begin_time AS flare_time,
-  storms.storm_start_time AS storm_time,
-  storms.storm_severity, 
+-- Visual model data
+  JSON_VALUE(analysis.speed) AS model_speed,
+  JSON_VALUE(analysis.type) AS model_type,
 
-  -- Golden Metric
-  TIMESTAMP_DIFF(storms.storm_start_time, flares.begin_time, HOUR) AS hours_to_arrive
-FROM raw_nasa_data.solar_flares AS flares
-INNER JOIN raw_nasa_data.clean_storms AS storms
-ON
-  storms.storm_start_time > flares.begin_time
-  AND
-  storms.storm_start_time <= TIMESTAMP_ADD(flares.begin_time, INTERVAL 5 DAY);
+-- Impact data (will NULL if not simulation was run)
+  JSON_VALUE(impact.location) AS impact_location,
+  JSON_VALUE(impact.arrivalTime) AS arrival_time
+FROM
+  `space-weather-monitor-501822.nasa_bronze.raw_cme`
+-- Extract the array from JSON, then flatten into rows
+LEFT JOIN
+--Flattens Array 1(The Analyses)
+  UNNEST(JSON_QUERY_ARRAY(raw_payload.cmeAnalyses)) as analysis
+
+-- Flattens Array 2 (The simiulations hiding inside the Analyses)
+LEFT JOIN
+  UNNEST(JSON_QUERY_ARRAY(analysis.enlilList)) AS enlil_model
+
+-- Flattens Array 3- Hit Impact List
+LEFT JOIN
+  UNNEST(JSON_QUERY_ARRAY(enlil_model.impactList)) AS impact;
  

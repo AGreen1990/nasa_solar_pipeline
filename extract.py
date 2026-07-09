@@ -26,7 +26,7 @@ if response.status_code == 200:
 
     # Bronze Prep
     #converts every rec into a single JSON string wrapped in a dict
-    bronze_data =[{"raw_payload": json.dumps(record)} for record in data]
+    bronze_data =[{"raw_payload":record} for record in data]
 
     #-- 3. The Load
     # Format: "your-project-id.dataset_name.table_name"

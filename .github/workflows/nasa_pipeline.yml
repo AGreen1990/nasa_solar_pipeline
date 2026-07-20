@@ -1,0 +1,46 @@
+name: Daily NASA CME Pipeline
+
+#1 The Triggers
+on:
+  schedule:
+    #Runs at 12:00 PM UTC (8:00 AM Eastern) everyday
+    - cron: '0 12 * * *'
+  #This line creates a button in GitHub so you can run it manually whenever you want
+  workflow_dispatch:
+
+#2 The Environment
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    #3. The Steps
+    steps:
+      #Step A: Copy all repository files onto the virtual computer
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      #Step b: Install python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version '3.10'
+
+      #step C: Install libraries (pandas, google-cloud-bigquery, etc)
+      - name: Install Requirements
+        run: |
+          pip install -r requirements.txt
+
+      #Step D: Create secret GCP Ket file on virtual computer
+      - name: Authenticate with Google cloud
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          echo "$GCP_CREDENTIALS" > gcp_key.json
+
+      #Step E: Run script
+      - name: Run Extraction script
+        env:
+          # TElls Google Bigquery exactly where to find the gcp+key
+          GOOGLE_APPLICATION_CREDENTIALS: gcp_key.json
+        run: |
+          python extract.py

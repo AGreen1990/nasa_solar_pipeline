@@ -1,0 +1,41 @@
+name: Daily CACTUS Scraper
+
+#1 The Triggers
+on:
+  schedule:
+    #Runs at 12:00 PM UTC (8:00 AM Eastern) everyday
+    - cron: '0 12 * * *'
+  #This line creates a button in GitHub so you can run it manually whenever you want
+  workflow_dispatch:
+
+#2 The Environment
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    #3. The Steps
+    steps:
+      #Step A: Copy all repository files onto the virtual computer
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      #Step b: Install python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13' #matches my Mac's virtual environment
+
+      #step C: Install libraries (pandas, google-cloud-bigquery, etc)
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      #Step E: Run script
+      - name: Run Extraction script
+      # This passes the vault secret into the server's environment variables
+        env:
+          # TElls Google Bigquery exactly where to find the gcp+key
+          GCP_CREDENTIALS: ${{ secrets.GCP_CREDENTIALS }}
+        run: |
+          python extract.py

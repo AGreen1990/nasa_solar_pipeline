@@ -1,6 +1,11 @@
 import pandas as pd
 import requests
 from io import StringIO
+import os
+import json
+
+from google.oauth2 import service_account
+from google.cloud import bigquery
 
 #1 Target the CACTUS raw text dump
 url = "https://www.sidc.be/cactus/out/latestCMEs.html"
@@ -32,16 +37,20 @@ df['start_time'] = pd.to_datetime(df['start_time'])
 print(df.head())
 print(df.dtypes)
 
-from google.oauth2 import service_account
-from google.cloud import bigquery
+# GitHub Action Automation code
 
-#1 define exact path to JSON file on local computer
-# replace with actual file path and project id
-key_path = "gcp_key.json"
+#1 define project id
 project_id = "space-weather-monitor-501822"
 
-#2 load credentials
-credentials = service_account.Credentials.from_service_account_file(key_path)
+#2 load credentials (Hybrid Cloud/Local Check)
+if "GCP_CREDENTIALS" in os.environ:
+    print("☁️ Cloud environment detected. Loading credentials from Github Secrets...")
+    creds_json = json.loads(os.environ["GCP_CREDENTIALS"])
+    credentials = service_account.Credentials.from_service_account_info(creds_json)
+else:
+    print("💻 Local environment detected. Loading credentials from file...")
+    key_path = "gcp_key.json"
+    credentials = service_account.Credentials.from_service_account_file(key_path)
 
 #3 Hands the credentials to BigQuery Client
 client = bigquery.Client(credentials=credentials, project=project_id)

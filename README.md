@@ -7,7 +7,8 @@ Build an ELT pipeline to ingest NASA solar data, correlate Solar Flares with Geo
 * **Infrastructure:** Google BigQuery (Data Warehouse)
 * **Language:** SQL (Standard SQL)
 * **Visualization:** Looker Studio
-* **Data Source:** NASA DONKI API (Coronal Mass Ejection & Geomagnetic Storm logs)
+* **Data Source:** CACTus 'Computer Aided CME Tracking' database developed by Solar Influences Data Center at the Royal observatory of Belgium. 
+
 
 ## 3. Key Technical Challenges
 * **Non-Equi Joins:** Linked two disparate datasets (Flares and Storms) based on a sliding time window (Event B happens 2-5 days after Event A) rather than a common ID.

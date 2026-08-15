@@ -7,7 +7,7 @@ Build an ELT pipeline to ingest NASA solar data, correlate Solar Flares with Geo
 * **Infrastructure:** Google BigQuery (Data Warehouse)
 * **Language:** SQL (Standard SQL)
 * **Visualization:** Looker Studio
-* **Data Source:** CACTus 'Computer Aided CME Tracking' database developed by Solar Influences Data Center at the Royal observatory of Belgium. 
+* **Data Source:** CACTus (Computer Aided CME Tracking) database developed by Solar Influences Data Center at the Royal observatory of Belgium. 
 
 
 ## 3. Key Technical Challenges

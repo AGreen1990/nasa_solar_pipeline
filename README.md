@@ -1,4 +1,4 @@
-# NASA Solar Weather Pipeline ☀️🛰️
+# CACTus Solar Weather Pipeline ☀️🛰️
 
 ## 1. Objective
 Build an ELT pipeline to ingest NASA solar data, correlate Solar Flares with Geomagnetic Storms, and visualize the "Lag Time" to predict grid impact.
